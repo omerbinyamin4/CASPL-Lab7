@@ -93,6 +93,7 @@ void LoadIntoMemory(state* s){
     if (s->debug_mode)
         printf("File name: %s, location: %x, length %d\n", s->file_name, input_location, input_length);
     fseek(file, input_location, SEEK_SET);
+    s->mem_count = s->unit_size*input_length;
     fread(s->mem_buf, s->unit_size, input_length, file);
     fclose(file);
     printf("Loaded %d units into memory\n", input_length);
@@ -101,15 +102,13 @@ void MemoryDisplay(state* s){
     char buffer[100];
     int units;
     int addr;
-    int i;
-    int j;
     printf("Enter address and length:\n");
     fgets(buffer, 100, stdin);
     sscanf(buffer, "%x %d", &addr, &units);
     printf("Hexadecimal\n===========\n");
-    print_units(stdout, buffer + addr, units, 0, s);
+    print_units(stdout, (s->mem_buf) + addr, units, 0, s);
     printf("\nDecimal\n=======\n");
-    print_units(stdout, buffer + addr, units, 1, s);
+    print_units(stdout, (s->mem_buf) + addr, units, 1, s);
 
     }
 void SaveIntoFile(state* s){
