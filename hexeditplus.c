@@ -105,10 +105,19 @@ void MemoryDisplay(state* s){
     printf("Enter address and length:\n");
     fgets(buffer, 100, stdin);
     sscanf(buffer, "%x %d", &addr, &units);
-    printf("Hexadecimal\n===========\n");
-    print_units(stdout, (s->mem_buf) + addr, units, 0, s);
-    printf("\nDecimal\n=======\n");
-    print_units(stdout, (s->mem_buf) + addr, units, 1, s);
+    if (addr == 0){
+        printf("Hexadecimal\n===========\n");
+        print_units(stdout, s->mem_buf, units, 0, s);
+        printf("\nDecimal\n=======\n");
+        print_units(stdout, s->mem_buf, units, 1, s);
+    }
+    else{
+        printf("Hexadecimal\n===========\n");
+        print_units(stdout, addr, units, 0, s);
+        printf("\nDecimal\n=======\n");
+        print_units(stdout, addr, units, 1, s);   
+    }
+    
 
     }
 void SaveIntoFile(state* s){
