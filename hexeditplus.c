@@ -72,7 +72,7 @@ void SetUnitSize(state* s){
         if (s->debug_mode)
             printf("Debug: set size to %d\n", size);
     }
-    else printf("Error: invalid number\n");    
+    else fprintf(stderr, "Error: invalid number\n");    
 }
 void LoadIntoMemory(state* s){
     char buffer[BUF_SZ];
@@ -121,10 +121,52 @@ void MemoryDisplay(state* s){
 
     }
 void SaveIntoFile(state* s){
-    printf("not implemented yet\n");
+    int source_addresss, target_location, length, file_size;
+    char buffer[BUF_SZ];
+    FILE* file;
+
+    file = fopen(s->file_name, "r+");
+    if (file == NULL) {
+        perror("Unable to open file: ");
+        return;
+    }
+
+    fseek(file, 0, SEEK_END);
+    file_size = (unsigned int)(ftell(file));
+    rewind(file);
+
+    printf("Please enter <source-address> <target-location> <length>\n");
+    fgets(buffer, BUF_SZ, stdin);
+    sscanf(buffer, "%x %d %d", &source_addresss, &target_location, &length);
+
+    if (target_location > file_size) {
+        printf("Invalid target Location: location is too large (target-location=%d, file_size=%d)\n", target_location, file_size);
+        return;
+    }
+
+    fseek(file, target_location, SEEK_SET); 
+
+    if (source_addresss == 0)
+        fwrite(s->mem_buf, s->unit_size, length, file);
+    else 
+        fwrite((const void*)source_addresss, s->unit_size, length, file);
+
+    fclose(file);        
 }
 void MemoryModify(state* s){
-    printf("not implemented yet\n");
+    char buffer[100];
+    int location;
+    int val;
+    char* temp;
+    printf("Enter location and val:\n");
+    fgets(buffer, 100, stdin);
+    sscanf(buffer, "%x %x", &location, &val);
+    if (s->debug_mode)
+        printf("Debug: enterd: location: %x, val: %x\n", location, val);
+    /*if ((location + s->unit_size) > strlen(s->mem_buf))
+        fprintf(stderr, "Error: invalid location\n");
+    else*/
+        memcpy(&s->mem_buf[location], &val, s->unit_size);
 }
 void Quit(state* s){
     if (s->debug_mode)
@@ -168,9 +210,10 @@ int main(int argc, char **argv) {
             }
             else{
                 (menu[func_num[0] - 49].fun)(s);
-                printf("DONE.\n\n");
+                /*printf("DONE.\n\n");*/
             }
-        
+        printf("\n");
+
     }
     
 }
